@@ -66,7 +66,7 @@ func ParseAlmanac(almanacPath string) Almanac {
 	lines := utils.LoadFileLines(almanacPath)
 
 	currentKey := ""
-	seedsPart1 := []int64{}
+	var seedsPart1 []int64
 	seedsPart2 := make(map[int64]int64)
 	almanacMap := make(map[string][]Mapping)
 	for _, line := range lines {
@@ -90,13 +90,15 @@ func ParseAlmanac(almanacPath string) Almanac {
 		seedsPart1,
 		seedsPart2,
 		Mappings{
-			almanacMap["seed-to-soil"],
-			almanacMap["soil-to-fertilizer"],
-			almanacMap["fertilizer-to-water"],
-			almanacMap["water-to-light"],
-			almanacMap["light-to-temperature"],
-			almanacMap["temperature-to-humidity"],
-			almanacMap["humidity-to-location"],
+			[][]Mapping{
+				almanacMap["seed-to-soil"],
+				almanacMap["soil-to-fertilizer"],
+				almanacMap["fertilizer-to-water"],
+				almanacMap["water-to-light"],
+				almanacMap["light-to-temperature"],
+				almanacMap["temperature-to-humidity"],
+				almanacMap["humidity-to-location"],
+			},
 		},
 	}
 }
@@ -123,23 +125,14 @@ func convertNumbersToMapping(numbers string) Mapping {
 }
 
 type Mappings struct {
-	seedToSoil            []Mapping
-	soilToFertilizer      []Mapping
-	fertilizerToWater     []Mapping
-	waterToLight          []Mapping
-	lightToTemperature    []Mapping
-	temperatureToHumidity []Mapping
-	humidityToLocation    []Mapping
+	sortedMappings [][]Mapping
 }
 
 func (receiver Mappings) mapSeedToLocation(seed int64) int64 {
-	soil := mapValue(receiver.seedToSoil, seed)
-	fertilizer := mapValue(receiver.soilToFertilizer, soil)
-	water := mapValue(receiver.fertilizerToWater, fertilizer)
-	light := mapValue(receiver.waterToLight, water)
-	temperature := mapValue(receiver.lightToTemperature, light)
-	humidity := mapValue(receiver.temperatureToHumidity, temperature)
-	return mapValue(receiver.humidityToLocation, humidity)
+	for _, mapping := range receiver.sortedMappings {
+		seed = mapValue(mapping, seed)
+	}
+	return seed
 }
 
 func mapValue(mappings []Mapping, value int64) int64 {
