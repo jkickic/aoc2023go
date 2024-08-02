@@ -42,3 +42,45 @@ func TestFindLocationSampleInput(t *testing.T) {
 		t.Errorf("%d != 82", result)
 	}
 }
+
+func TestParseAlmanac(t *testing.T) {
+	res := ParseAlmanac("test_input.txt")
+	if len(res.seeds) != 4 {
+		t.Errorf("%d != 4", res.seeds)
+	}
+	if len(res.mappings.seedToSoil) != 2 {
+		t.Errorf("%d != 2", res.mappings.seedToSoil)
+	}
+	if len(res.mappings.soilToFertilizer) != 3 {
+		t.Errorf("%d != 2", res.mappings.soilToFertilizer)
+	}
+	if len(res.mappings.fertilizerToWater) != 4 {
+		t.Errorf("%d != 2", res.mappings.fertilizerToWater)
+	}
+	if len(res.mappings.waterToLight) != 2 {
+		t.Errorf("%d != 2", res.mappings.waterToLight)
+	}
+	if len(res.mappings.lightToTemperature) != 3 {
+		t.Errorf("%d != 2", res.mappings.lightToTemperature)
+	}
+	if len(res.mappings.temperatureToHumidity) != 2 {
+		t.Errorf("%d != 2", res.mappings.temperatureToHumidity)
+	}
+	if len(res.mappings.humidityToLocation) != 2 {
+		t.Errorf("%d != 2", res.mappings.humidityToLocation)
+	}
+}
+
+func TestFindLowestLocation(t *testing.T) {
+	res := FindLowestLocation("test_input.txt")
+	if res != 35 {
+		t.Errorf("%d != 35", res)
+	}
+}
+
+func TestSolvePart1(t *testing.T) {
+	res := FindLowestLocation("input.txt")
+	if res != 265018614 {
+		t.Errorf("%d != 265018614", res)
+	}
+}

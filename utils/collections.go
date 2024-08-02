@@ -19,6 +19,13 @@ func MapStringArrayToInt(arr []string) []int {
 	})
 }
 
+func MapStringArrayToInt64(arr []string) []int64 {
+	return Map(arr, func(value string) int64 {
+		i, _ := strconv.ParseInt(value, 10, 64)
+		return i
+	})
+}
+
 func Map[T any, R any](arr []T, f func(T) R) []R {
 	var result []R
 	for _, value := range arr {
