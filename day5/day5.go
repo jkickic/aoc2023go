@@ -2,8 +2,10 @@ package day5
 
 import (
 	"aoc2023go/utils"
+	"math"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 func FindLowestLocation(almanacPath string) int64 {
@@ -20,15 +22,38 @@ func FindLowestLocation(almanacPath string) int64 {
 
 func FindLowestLocationPart2(almanacPath string) int64 {
 	almanac := ParseAlmanac(almanacPath)
-	lowestLocation := int64(-1)
+	locCh := make(chan int64)
+	var wg sync.WaitGroup
+
 	for seedRangeStart, seedRangeLength := range almanac.seedsPart2 {
-		for seed := seedRangeStart; seed < seedRangeStart+seedRangeLength; seed++ {
-			location := almanac.mappings.mapSeedToLocation(seed)
-			if lowestLocation == -1 || location < lowestLocation {
-				lowestLocation = location
+		wg.Add(1)
+
+		go func() {
+			defer wg.Done()
+
+			localLowest := int64(math.MaxInt64)
+			for seed := seedRangeStart; seed < seedRangeStart+seedRangeLength; seed++ {
+				location := almanac.mappings.mapSeedToLocation(seed)
+				if location < localLowest {
+					localLowest = location
+				}
 			}
+			locCh <- localLowest
+		}()
+	}
+
+	go func() {
+		wg.Wait()
+		close(locCh)
+	}()
+
+	lowestLocation := int64(math.MaxInt64)
+	for loc := range locCh {
+		if loc < lowestLocation {
+			lowestLocation = loc
 		}
 	}
+
 	return lowestLocation
 }
 
