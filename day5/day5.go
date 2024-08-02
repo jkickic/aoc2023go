@@ -27,18 +27,9 @@ func FindLowestLocationPart2(almanacPath string) int64 {
 
 	for seedRangeStart, seedRangeLength := range almanac.seedsPart2 {
 		wg.Add(1)
-
 		go func() {
 			defer wg.Done()
-
-			localLowest := int64(math.MaxInt64)
-			for seed := seedRangeStart; seed < seedRangeStart+seedRangeLength; seed++ {
-				location := almanac.mappings.mapSeedToLocation(seed)
-				if location < localLowest {
-					localLowest = location
-				}
-			}
-			locCh <- localLowest
+			findLowestLocationForSeedRange(seedRangeStart, seedRangeLength, almanac, locCh)
 		}()
 	}
 
@@ -47,13 +38,27 @@ func FindLowestLocationPart2(almanacPath string) int64 {
 		close(locCh)
 	}()
 
+	return findLowestLocationInTheChannel(locCh)
+}
+
+func findLowestLocationForSeedRange(seedRangeStart int64, seedRangeLength int64, almanac Almanac, locCh chan int64) {
+	localLowest := int64(math.MaxInt64)
+	for seed := seedRangeStart; seed < seedRangeStart+seedRangeLength; seed++ {
+		location := almanac.mappings.mapSeedToLocation(seed)
+		if location < localLowest {
+			localLowest = location
+		}
+	}
+	locCh <- localLowest
+}
+
+func findLowestLocationInTheChannel(locCh chan int64) int64 {
 	lowestLocation := int64(math.MaxInt64)
 	for loc := range locCh {
 		if loc < lowestLocation {
 			lowestLocation = loc
 		}
 	}
-
 	return lowestLocation
 }
 
