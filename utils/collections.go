@@ -46,3 +46,11 @@ func GetOr[T comparable, R any](mapp map[T]R, key T, defaultValue R) R {
 		return defaultValue
 	}
 }
+
+func CreateIntArray(start int, end int) []int {
+	var arr []int
+	for i := start; i <= end; i++ {
+		arr = append(arr, i)
+	}
+	return arr
+}

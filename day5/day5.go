@@ -9,10 +9,24 @@ import (
 func FindLowestLocation(almanacPath string) int64 {
 	almanac := ParseAlmanac(almanacPath)
 	lowestLocation := int64(-1)
-	for _, seed := range almanac.seeds {
+	for _, seed := range almanac.seedsPart1 {
 		location := almanac.mappings.mapSeedToLocation(seed)
 		if lowestLocation == -1 || location < lowestLocation {
 			lowestLocation = location
+		}
+	}
+	return lowestLocation
+}
+
+func FindLowestLocationPart2(almanacPath string) int64 {
+	almanac := ParseAlmanac(almanacPath)
+	lowestLocation := int64(-1)
+	for seedRangeStart, seedRangeLength := range almanac.seedsPart2 {
+		for seed := seedRangeStart; seed < seedRangeStart+seedRangeLength; seed++ {
+			location := almanac.mappings.mapSeedToLocation(seed)
+			if lowestLocation == -1 || location < lowestLocation {
+				lowestLocation = location
+			}
 		}
 	}
 	return lowestLocation
@@ -22,7 +36,8 @@ func ParseAlmanac(almanacPath string) Almanac {
 	lines := utils.LoadFileLines(almanacPath)
 
 	currentKey := ""
-	seeds := []int64{}
+	seedsPart1 := []int64{}
+	seedsPart2 := make(map[int64]int64)
 	almanacMap := make(map[string][]Mapping)
 	for _, line := range lines {
 		text, isText, numbers := utils.CaptureNonDigits(line)
@@ -30,7 +45,8 @@ func ParseAlmanac(almanacPath string) Almanac {
 			currentKey = strings.ReplaceAll(strings.Split(text, ":")[0], "map", "")
 		}
 		if currentKey == "seeds" && numbers != "" {
-			seeds = utils.MapStringArrayToInt64(strings.Split(numbers, " "))
+			seedsPart1 = utils.MapStringArrayToInt64(strings.Split(numbers, " "))
+			seedsPart2 = MapSeedRanges(numbers)
 		} else {
 			if numbers != "" {
 				if almanacMap[currentKey] == nil {
@@ -41,7 +57,8 @@ func ParseAlmanac(almanacPath string) Almanac {
 		}
 	}
 	return Almanac{
-		seeds,
+		seedsPart1,
+		seedsPart2,
 		Mappings{
 			almanacMap["seed-to-soil"],
 			almanacMap["soil-to-fertilizer"],
@@ -52,6 +69,15 @@ func ParseAlmanac(almanacPath string) Almanac {
 			almanacMap["humidity-to-location"],
 		},
 	}
+}
+
+func MapSeedRanges(numbers string) map[int64]int64 {
+	seeds := utils.MapStringArrayToInt64(strings.Fields(numbers))
+	var result = make(map[int64]int64)
+	for i := 0; i < len(seeds); i += 2 {
+		result[seeds[i]] = seeds[i+1]
+	}
+	return result
 }
 
 func convertNumbersToMapping(numbers string) Mapping {
@@ -103,6 +129,7 @@ type Mapping struct {
 }
 
 type Almanac struct {
-	seeds    []int64
-	mappings Mappings
+	seedsPart1 []int64
+	seedsPart2 map[int64]int64
+	mappings   Mappings
 }

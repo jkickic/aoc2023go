@@ -45,8 +45,8 @@ func TestFindLocationSampleInput(t *testing.T) {
 
 func TestParseAlmanac(t *testing.T) {
 	res := ParseAlmanac("test_input.txt")
-	if len(res.seeds) != 4 {
-		t.Errorf("%d != 4", res.seeds)
+	if len(res.seedsPart1) != 4 {
+		t.Errorf("%d != 4", res.seedsPart1)
 	}
 	if len(res.mappings.seedToSoil) != 2 {
 		t.Errorf("%d != 2", res.mappings.seedToSoil)
@@ -82,5 +82,29 @@ func TestSolvePart1(t *testing.T) {
 	res := FindLowestLocation("input.txt")
 	if res != 265018614 {
 		t.Errorf("%d != 265018614", res)
+	}
+}
+
+func TestSeedRangeMapping(t *testing.T) {
+	res := MapSeedRanges("79 14 55 13")
+	if res[79] != 14 {
+		t.Errorf("%d != 14", res[79])
+	}
+	if res[55] != 13 {
+		t.Errorf("%d != 13", res[13])
+	}
+}
+
+func TestFindLowestLocationPart2(t *testing.T) {
+	res := FindLowestLocationPart2("test_input.txt")
+	if res != 46 {
+		t.Errorf("%d != 46", res)
+	}
+}
+
+func TestSolvePart2(t *testing.T) {
+	res := FindLowestLocationPart2("input.txt")
+	if res != 63179500 {
+		t.Errorf("%d != 63179500", res)
 	}
 }
