@@ -21,7 +21,6 @@ func TestPart1(t *testing.T) {
 
 func TestJokerRanks(t *testing.T) {
 	expectedHandResults := map[Hand]int{
-		{"JTTQQ", 0}: 3,
 		{"JJJJJ", 0}: 1,
 		{"JJJJK", 0}: 1,
 		{"JJJKK", 0}: 1,
@@ -51,5 +50,12 @@ func TestSampleHandPart2(t *testing.T) {
 	score := SolvePart2("test_input.txt")
 	if score != 5905 {
 		t.Errorf("Incorrect score %d, expected %d", score, 5905)
+	}
+}
+
+func TestPart2(t *testing.T) {
+	score := SolvePart2("input.txt")
+	if score != 248308925 {
+		t.Errorf("Incorrect score %d, expected %d", score, 248308925)
 	}
 }

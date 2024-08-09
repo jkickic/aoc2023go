@@ -2,7 +2,9 @@ package day7
 
 import (
 	"aoc2023go/utils"
+	"fmt"
 	"slices"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -20,9 +22,19 @@ func SolvePart2(file string) int {
 
 	score := 0
 	for index, hand := range hands {
+		fmt.Printf("%s %d\n", hand.hand, hand.rankHand2())
 		score += (index + 1) * hand.bid
 	}
 	return score
+}
+
+var SortByRankPart2 = func(p1 Hand, p2 Hand) int {
+	rank1 := p1.rankHand2()
+	rank2 := p2.rankHand2()
+	if rank1 == rank2 {
+		return SortByHighCardPart2(p1, p2)
+	}
+	return rank2 - rank1
 }
 
 func (hand *Hand) rankHand2() int {
@@ -36,46 +48,38 @@ func (hand *Hand) rankHand2() int {
 			cardCount[card] = 1
 		}
 	}
-	var countCount = make(map[int]int)
-	countCount[0] = 0
+	var counts []int
 	for card, value := range cardCount {
-		cc, exitst := countCount[value]
 		if card != "J" {
-			if exitst {
-				countCount[value] = cc + 1
-			} else {
-				countCount[value] = 1
-			}
+			counts = append(counts, value)
 		}
 	}
 
-	jokers := cardCount["J"]
+	sort.Slice(counts, func(i, j int) bool {
+		return counts[i] > counts[j]
+	})
 
-	_, fiveOfAKind := countCount[5-jokers]
-	if fiveOfAKind {
+	if len(counts) > 0 {
+		counts[0] = counts[0] + cardCount["J"]
+	} else {
 		return 1
 	}
-	_, fourOfAKind := countCount[4-jokers]
-	if fourOfAKind {
+	if utils.ArraysEqual(counts, []int{5}) {
+		return 1
+	}
+	if utils.ArraysEqual(counts, []int{4, 1}) {
 		return 2
 	}
-	_, threeOfAKind := countCount[3-jokers]
-	if threeOfAKind {
-		twoOfAKindCount, _ := countCount[2]
-		if twoOfAKindCount == 2 || jokers == 0 {
-			return 3
-		}
-		if threeOfAKind {
-			return 4
-		}
+	if utils.ArraysEqual(counts, []int{3, 2}) {
+		return 3
 	}
-	pairCount, _ := countCount[2]
-	twoPairs := pairCount == 2
-	if twoPairs {
+	if utils.ArraysEqual(counts, []int{3, 1, 1}) {
+		return 4
+	}
+	if utils.ArraysEqual(counts, []int{2, 2, 1}) {
 		return 5
 	}
-	_, twoOfAKind := countCount[2-jokers]
-	if twoOfAKind {
+	if utils.ArraysEqual(counts, []int{2, 1, 1, 1}) {
 		return 6
 	}
 	return 7
@@ -113,14 +117,4 @@ var SortByHighCardPart2 = func(p1 Hand, p2 Hand) int {
 		}
 	}
 	return 0
-}
-
-var SortByRankPart2 = func(p1 Hand, p2 Hand) int {
-	if p1.rankHand2() == p2.rankHand2() {
-		return SortByHighCardPart2(p1, p2)
-	}
-	if p1.rankHand2() > p2.rankHand2() {
-		return -1
-	}
-	return 1
 }

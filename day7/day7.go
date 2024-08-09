@@ -3,6 +3,7 @@ package day7
 import (
 	"aoc2023go/utils"
 	"slices"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -41,37 +42,31 @@ func (hand *Hand) rankHand() int {
 			cardCount[card] = 1
 		}
 	}
-	var countCount = make(map[int]int)
+	var counts []int
 	for _, value := range cardCount {
-		cc, exitst := countCount[value]
-		if exitst {
-			countCount[value] = cc + 1
-		} else {
-			countCount[value] = 1
-		}
+		counts = append(counts, value)
 	}
-	_, fiveOfAKind := countCount[5]
-	if fiveOfAKind {
+
+	sort.Slice(counts, func(i, j int) bool {
+		return counts[i] > counts[j]
+	})
+
+	if utils.ArraysEqual(counts, []int{5}) {
 		return 1
 	}
-	_, fourOfAKind := countCount[4]
-	if fourOfAKind {
+	if utils.ArraysEqual(counts, []int{4, 1}) {
 		return 2
 	}
-	_, threeOfAKind := countCount[3]
-	pairCount, twoOfAKind := countCount[2]
-	fullHouse := threeOfAKind && twoOfAKind
-	if fullHouse {
+	if utils.ArraysEqual(counts, []int{3, 2}) {
 		return 3
 	}
-	if threeOfAKind {
+	if utils.ArraysEqual(counts, []int{3, 1, 1}) {
 		return 4
 	}
-	twoPairs := pairCount == 2
-	if twoPairs {
+	if utils.ArraysEqual(counts, []int{2, 2, 1}) {
 		return 5
 	}
-	if twoOfAKind {
+	if utils.ArraysEqual(counts, []int{2, 1, 1, 1}) {
 		return 6
 	}
 	return 7
