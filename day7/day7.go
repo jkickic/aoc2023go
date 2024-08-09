@@ -13,16 +13,16 @@ type Hand struct {
 	bid  int
 }
 
-func SolvePart1(file string) int {
+func Solve(file string, jokers bool) int {
 	lines := utils.LoadFileLines(file)
 	var hands []Hand
 	for _, line := range lines {
-		handParts := strings.Split(string(line), " ")
+		handParts := strings.Split(line, " ")
 		atoi, _ := strconv.Atoi(handParts[1])
 		hands = append(hands, Hand{handParts[0], atoi})
 	}
 
-	slices.SortFunc(hands, SortByRank)
+	slices.SortFunc(hands, createHandSorter(jokers))
 
 	score := 0
 	for index, hand := range hands {
@@ -31,31 +31,40 @@ func SolvePart1(file string) int {
 	return score
 }
 
-func (hand *Hand) rankHand() int {
-	var cardCount = CountCards(hand)
-	var counts []int
-	for _, value := range cardCount {
-		counts = append(counts, value)
+func createHandSorter(jokers bool) func(Hand, Hand) int {
+	return func(p1 Hand, p2 Hand) int {
+		strength1 := p1.handStrength(jokers)
+		strength2 := p2.handStrength(jokers)
+		if strength1 == strength2 {
+			return sortByHighCard(jokers, p1, p2)
+		}
+		return strength2 - strength1
 	}
-
-	return CalculateHandStrength(counts)
 }
 
-func CountCards(hand *Hand) map[string]int {
+func (hand *Hand) handStrength(jokers bool) int {
 	var cardCount = make(map[string]int)
 	for _, cardInt := range hand.hand {
-		var card = string(cardInt)
-		val, exists := cardCount[card]
-		if exists {
-			cardCount[card] = val + 1
-		} else {
-			cardCount[card] = 1
+		cardCount[string(cardInt)]++
+	}
+	var cardCounts []int
+	for card, value := range cardCount {
+		if !jokers || (card != "J") {
+			cardCounts = append(cardCounts, value)
 		}
 	}
-	return cardCount
+	sort.Sort(sort.Reverse(sort.IntSlice(cardCounts)))
+
+	if len(cardCounts) == 0 {
+		cardCounts = append(cardCounts, 0)
+	}
+	if jokers {
+		cardCounts[0] = cardCounts[0] + cardCount["J"]
+	}
+	return calculateHandStrength(cardCounts)
 }
 
-func CalculateHandStrength(counts []int) int {
+func calculateHandStrength(counts []int) int {
 	sort.Sort(sort.Reverse(sort.IntSlice(counts)))
 	if utils.ArraysEqual(counts, []int{5}) {
 		return 1
@@ -78,16 +87,22 @@ func CalculateHandStrength(counts []int) int {
 	return 7
 }
 
-var part1Mapping = map[string]int{
-	"A": 14,
-	"K": 13,
-	"Q": 12,
-	"J": 11,
-	"T": 10,
+var sortByHighCard = func(jokers bool, p1 Hand, p2 Hand) int {
+	for idx, characterInt := range p1.hand {
+		p1Card := mapCard(jokers, string(characterInt))
+		p2Card := mapCard(jokers, string(p2.hand[idx]))
+		if p1Card < p2Card {
+			return -1
+		} else if p1Card > p2Card {
+			return 1
+		}
+	}
+	return 0
 }
 
-func mapCard(card string) int {
-	mappedValue, exists := part1Mapping[card]
+func mapCard(jokers bool, card string) int {
+	mapping := cardStrengthMapping(jokers)
+	mappedValue, exists := mapping[card]
 	if exists {
 		return mappedValue
 	}
@@ -98,26 +113,16 @@ func mapCard(card string) int {
 	return mappedInt
 }
 
-var SortByHighCard = func(p1 Hand, p2 Hand) int {
-	for idx, characterInt := range p1.hand {
-		p1Card := mapCard(string(characterInt))
-		p2Card := mapCard(string(p2.hand[idx]))
-		if p1Card < p2Card {
-			return -1
-		}
-		if p1Card > p2Card {
-			return 1
-		}
+func cardStrengthMapping(jokers bool) map[string]int {
+	var mapping = map[string]int{
+		"A": 14,
+		"K": 13,
+		"Q": 12,
+		"J": 11,
+		"T": 10,
 	}
-	return 0
-}
-
-var SortByRank = func(p1 Hand, p2 Hand) int {
-	if p1.rankHand() == p2.rankHand() {
-		return SortByHighCard(p1, p2)
+	if jokers {
+		mapping["J"] = 1
 	}
-	if p1.rankHand() > p2.rankHand() {
-		return -1
-	}
-	return 1
+	return mapping
 }

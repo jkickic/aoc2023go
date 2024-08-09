@@ -6,14 +6,14 @@ import (
 )
 
 func TestSampleHand(t *testing.T) {
-	score := SolvePart1("test_input.txt")
+	score := Solve("test_input.txt", false)
 	if score != 6440 {
 		t.Errorf("Incorrect score %d, expected %d", score, 6440)
 	}
 }
 
 func TestPart1(t *testing.T) {
-	score := SolvePart1("input.txt")
+	score := Solve("input.txt", false)
 	if score != 247815719 {
 		t.Errorf("Incorrect score %d, expected %d", score, 247815719)
 	}
@@ -37,7 +37,7 @@ func TestJokerRanks(t *testing.T) {
 	}
 	for hand, expectedScore := range expectedHandResults {
 		t.Run(fmt.Sprintf("%s should score %d", hand.hand, expectedScore), func(t *testing.T) {
-			score := hand.rankHand2()
+			score := hand.handStrength(true)
 			if score != expectedScore {
 				t.Errorf("%s expected %d not %d", hand.hand, expectedScore, score)
 			}
@@ -47,14 +47,14 @@ func TestJokerRanks(t *testing.T) {
 }
 
 func TestSampleHandPart2(t *testing.T) {
-	score := SolvePart2("test_input.txt")
+	score := Solve("test_input.txt", true)
 	if score != 5905 {
 		t.Errorf("Incorrect score %d, expected %d", score, 5905)
 	}
 }
 
 func TestPart2(t *testing.T) {
-	score := SolvePart2("input.txt")
+	score := Solve("input.txt", true)
 	if score != 248747492 {
 		t.Errorf("Incorrect score %d, expected %d", score, 248747492)
 	}
