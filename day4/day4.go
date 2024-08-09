@@ -7,8 +7,7 @@ import (
 )
 
 func CalculatePoints(cardPath string) int {
-	contents := utils.LoadFileContents(cardPath)
-	lines := strings.Split(contents, "\r\n")
+	lines := utils.LoadFileLines(cardPath)
 	points := 0
 	for _, line := range lines {
 		scratchcard := createScratchcard(line)
@@ -22,8 +21,7 @@ func CalculatePoints(cardPath string) int {
 }
 
 func CalculateTotalCardCount(cardPath string) int {
-	contents := utils.LoadFileContents(cardPath)
-	lines := strings.Split(contents, "\r\n")
+	lines := utils.LoadFileLines(cardPath)
 	scratchcards := make([]scratchcard, 0)
 
 	for _, line := range lines {

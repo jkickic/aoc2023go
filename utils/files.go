@@ -7,7 +7,7 @@ import (
 )
 
 func LoadFileLines(filename string) []string {
-	return strings.Split(LoadFileContents(filename), "\r\n")
+	return strings.Split(LoadFileContents(filename), "\n")
 }
 
 func LoadFileContents(filename string) string {
@@ -15,5 +15,5 @@ func LoadFileContents(filename string) string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return string(bytes)
+	return strings.ReplaceAll(string(bytes), "\r", "")
 }

@@ -1,7 +1,7 @@
 package day7
 
 import (
-	"os"
+	"aoc2023go/utils"
 	"slices"
 	"strconv"
 	"strings"
@@ -13,9 +13,8 @@ type Hand struct {
 }
 
 func SolvePart1(file string) int {
-	input, _ := os.ReadFile(file)
-	lines := strings.Split(string(input), "\n")
-	hands := []Hand{}
+	lines := utils.LoadFileLines(file)
+	var hands []Hand
 	for _, line := range lines {
 		handParts := strings.Split(string(line), " ")
 		atoi, _ := strconv.Atoi(handParts[1])
