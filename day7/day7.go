@@ -2,6 +2,7 @@ package day7
 
 import (
 	"aoc2023go/utils"
+	"fmt"
 	"slices"
 	"sort"
 	"strconv"
@@ -59,32 +60,23 @@ func (hand *Hand) handStrength(jokers bool) int {
 		cardCounts = append(cardCounts, 0)
 	}
 	if jokers {
-		cardCounts[0] = cardCounts[0] + cardCount["J"]
+		cardCounts[0] += cardCount["J"]
 	}
 	return calculateHandStrength(cardCounts)
 }
 
 func calculateHandStrength(counts []int) int {
-	sort.Sort(sort.Reverse(sort.IntSlice(counts)))
-	if utils.ArraysEqual(counts, []int{5}) {
-		return 1
+	handStrengths := map[string]int{
+		"[5]":         1,
+		"[4 1]":       2,
+		"[3 2]":       3,
+		"[3 1 1]":     4,
+		"[2 2 1]":     5,
+		"[2 1 1 1]":   6,
+		"[1 1 1 1 1]": 7,
 	}
-	if utils.ArraysEqual(counts, []int{4, 1}) {
-		return 2
-	}
-	if utils.ArraysEqual(counts, []int{3, 2}) {
-		return 3
-	}
-	if utils.ArraysEqual(counts, []int{3, 1, 1}) {
-		return 4
-	}
-	if utils.ArraysEqual(counts, []int{2, 2, 1}) {
-		return 5
-	}
-	if utils.ArraysEqual(counts, []int{2, 1, 1, 1}) {
-		return 6
-	}
-	return 7
+	strength, _ := handStrengths[fmt.Sprint(counts)]
+	return strength
 }
 
 var sortByHighCard = func(jokers bool, p1 Hand, p2 Hand) int {
@@ -102,15 +94,8 @@ var sortByHighCard = func(jokers bool, p1 Hand, p2 Hand) int {
 
 func mapCard(jokers bool, card string) int {
 	mapping := cardStrengthMapping(jokers)
-	mappedValue, exists := mapping[card]
-	if exists {
-		return mappedValue
-	}
-	mappedInt, err := strconv.Atoi(card)
-	if err != nil || mappedInt < 2 || mappedInt > 9 {
-		return 0
-	}
-	return mappedInt
+	mappedInt, _ := strconv.Atoi(card)
+	return utils.GetOr(mapping, card, mappedInt)
 }
 
 func cardStrengthMapping(jokers bool) map[string]int {
