@@ -7,21 +7,16 @@ import (
 	"strings"
 )
 
-type Hand struct {
-	hand string
-	bid  int
-}
-
-func SolvePart1(file string) int {
+func SolvePart2(file string) int {
 	lines := utils.LoadFileLines(file)
 	var hands []Hand
 	for _, line := range lines {
-		handParts := strings.Split(string(line), " ")
+		handParts := strings.Split(line, " ")
 		atoi, _ := strconv.Atoi(handParts[1])
 		hands = append(hands, Hand{handParts[0], atoi})
 	}
 
-	slices.SortFunc(hands, SortByRank)
+	slices.SortFunc(hands, SortByRankPart2)
 
 	score := 0
 	for index, hand := range hands {
@@ -30,7 +25,7 @@ func SolvePart1(file string) int {
 	return score
 }
 
-func (hand *Hand) rankHand() int {
+func (hand *Hand) rankHand2() int {
 	var cardCount = make(map[string]int)
 	for _, cardInt := range hand.hand {
 		var card = string(cardInt)
@@ -42,51 +37,60 @@ func (hand *Hand) rankHand() int {
 		}
 	}
 	var countCount = make(map[int]int)
-	for _, value := range cardCount {
+	countCount[0] = 0
+	for card, value := range cardCount {
 		cc, exitst := countCount[value]
-		if exitst {
-			countCount[value] = cc + 1
-		} else {
-			countCount[value] = 1
+		if card != "J" {
+			if exitst {
+				countCount[value] = cc + 1
+			} else {
+				countCount[value] = 1
+			}
 		}
 	}
-	_, fiveOfAKind := countCount[5]
+
+	jokers := cardCount["J"]
+
+	_, fiveOfAKind := countCount[5-jokers]
 	if fiveOfAKind {
 		return 1
 	}
-	_, fourOfAKind := countCount[4]
+	_, fourOfAKind := countCount[4-jokers]
 	if fourOfAKind {
 		return 2
 	}
-	_, threeOfAKind := countCount[3]
-	pairCount, twoOfAKind := countCount[2]
-	fullHouse := threeOfAKind && twoOfAKind
-	if fullHouse {
-		return 3
-	}
+	_, threeOfAKind := countCount[3-jokers]
 	if threeOfAKind {
-		return 4
+		twoOfAKindCount, _ := countCount[2]
+		if twoOfAKindCount == 2 || jokers == 0 {
+			return 3
+		}
+		if threeOfAKind {
+			return 4
+		}
 	}
+	pairCount, _ := countCount[2]
 	twoPairs := pairCount == 2
 	if twoPairs {
 		return 5
 	}
+	_, twoOfAKind := countCount[2-jokers]
 	if twoOfAKind {
 		return 6
 	}
 	return 7
 }
 
-var part1Mapping = map[string]int{
+var part2Mapping = map[string]int{
 	"A": 14,
 	"K": 13,
 	"Q": 12,
-	"J": 11,
 	"T": 10,
+	"J": 1,
 }
 
-func mapCard(card string) int {
-	mappedValue, exists := part1Mapping[card]
+func mapCard2(card string) int {
+	mappedValue, exists := part2Mapping[card]
 	if exists {
 		return mappedValue
 	}
@@ -97,10 +101,10 @@ func mapCard(card string) int {
 	return mappedInt
 }
 
-var SortByHighCard = func(p1 Hand, p2 Hand) int {
+var SortByHighCardPart2 = func(p1 Hand, p2 Hand) int {
 	for idx, characterInt := range p1.hand {
-		p1Card := mapCard(string(characterInt))
-		p2Card := mapCard(string(p2.hand[idx]))
+		p1Card := mapCard2(string(characterInt))
+		p2Card := mapCard2(string(p2.hand[idx]))
 		if p1Card < p2Card {
 			return -1
 		}
@@ -111,11 +115,11 @@ var SortByHighCard = func(p1 Hand, p2 Hand) int {
 	return 0
 }
 
-var SortByRank = func(p1 Hand, p2 Hand) int {
-	if p1.rankHand() == p2.rankHand() {
-		return SortByHighCard(p1, p2)
+var SortByRankPart2 = func(p1 Hand, p2 Hand) int {
+	if p1.rankHand2() == p2.rankHand2() {
+		return SortByHighCardPart2(p1, p2)
 	}
-	if p1.rankHand() > p2.rankHand() {
+	if p1.rankHand2() > p2.rankHand2() {
 		return -1
 	}
 	return 1
