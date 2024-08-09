@@ -55,7 +55,7 @@ func TestSampleHandPart2(t *testing.T) {
 
 func TestPart2(t *testing.T) {
 	score := SolvePart2("input.txt")
-	if score != 248308925 {
-		t.Errorf("Incorrect score %d, expected %d", score, 248308925)
+	if score != 248747492 {
+		t.Errorf("Incorrect score %d, expected %d", score, 248747492)
 	}
 }

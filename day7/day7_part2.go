@@ -38,16 +38,7 @@ var SortByRankPart2 = func(p1 Hand, p2 Hand) int {
 }
 
 func (hand *Hand) rankHand2() int {
-	var cardCount = make(map[string]int)
-	for _, cardInt := range hand.hand {
-		var card = string(cardInt)
-		val, exists := cardCount[card]
-		if exists {
-			cardCount[card] = val + 1
-		} else {
-			cardCount[card] = 1
-		}
-	}
+	cardCount := CountCards(hand)
 	var counts []int
 	for card, value := range cardCount {
 		if card != "J" {
@@ -55,34 +46,13 @@ func (hand *Hand) rankHand2() int {
 		}
 	}
 
-	sort.Slice(counts, func(i, j int) bool {
-		return counts[i] > counts[j]
-	})
+	sort.Sort(sort.Reverse(sort.IntSlice(counts)))
 
-	if len(counts) > 0 {
-		counts[0] = counts[0] + cardCount["J"]
-	} else {
-		return 1
+	if len(counts) == 0 {
+		counts = append(counts, 0)
 	}
-	if utils.ArraysEqual(counts, []int{5}) {
-		return 1
-	}
-	if utils.ArraysEqual(counts, []int{4, 1}) {
-		return 2
-	}
-	if utils.ArraysEqual(counts, []int{3, 2}) {
-		return 3
-	}
-	if utils.ArraysEqual(counts, []int{3, 1, 1}) {
-		return 4
-	}
-	if utils.ArraysEqual(counts, []int{2, 2, 1}) {
-		return 5
-	}
-	if utils.ArraysEqual(counts, []int{2, 1, 1, 1}) {
-		return 6
-	}
-	return 7
+	counts[0] = counts[0] + cardCount["J"]
+	return CalculateHandStrength(counts)
 }
 
 var part2Mapping = map[string]int{
@@ -111,8 +81,7 @@ var SortByHighCardPart2 = func(p1 Hand, p2 Hand) int {
 		p2Card := mapCard2(string(p2.hand[idx]))
 		if p1Card < p2Card {
 			return -1
-		}
-		if p1Card > p2Card {
+		} else if p1Card > p2Card {
 			return 1
 		}
 	}

@@ -32,6 +32,16 @@ func SolvePart1(file string) int {
 }
 
 func (hand *Hand) rankHand() int {
+	var cardCount = CountCards(hand)
+	var counts []int
+	for _, value := range cardCount {
+		counts = append(counts, value)
+	}
+
+	return CalculateHandStrength(counts)
+}
+
+func CountCards(hand *Hand) map[string]int {
 	var cardCount = make(map[string]int)
 	for _, cardInt := range hand.hand {
 		var card = string(cardInt)
@@ -42,15 +52,11 @@ func (hand *Hand) rankHand() int {
 			cardCount[card] = 1
 		}
 	}
-	var counts []int
-	for _, value := range cardCount {
-		counts = append(counts, value)
-	}
+	return cardCount
+}
 
-	sort.Slice(counts, func(i, j int) bool {
-		return counts[i] > counts[j]
-	})
-
+func CalculateHandStrength(counts []int) int {
+	sort.Sort(sort.Reverse(sort.IntSlice(counts)))
 	if utils.ArraysEqual(counts, []int{5}) {
 		return 1
 	}
