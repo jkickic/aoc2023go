@@ -66,3 +66,12 @@ func ArraysEqual(a, b []int) bool {
 	}
 	return true
 }
+
+func AllMatch[T any](array []T, predicate func(value T) bool) bool {
+	for _, value := range array {
+		if !predicate(value) {
+			return false
+		}
+	}
+	return true
+}
