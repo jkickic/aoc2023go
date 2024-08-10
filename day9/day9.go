@@ -8,15 +8,28 @@ import (
 func SolvePart1(file string) int {
 	lines := utils.LoadFileLines(file)
 
-	sum := 0
+	sumRight := 0
 	for _, lineString := range lines {
 		line := utils.MapStringArrayToInt(strings.Split(lineString, " "))
-		sum += extrapolateLine(line)
+		_, extrapolateRight := extrapolateLine(line)
+		sumRight += extrapolateRight
 	}
-	return sum
+	return sumRight
 }
 
-func extrapolateLine(line []int) int {
+func SolvePart2(file string) int {
+	lines := utils.LoadFileLines(file)
+
+	sumLeft := 0
+	for _, lineString := range lines {
+		line := utils.MapStringArrayToInt(strings.Split(lineString, " "))
+		extrapolatedLeft, _ := extrapolateLine(line)
+		sumLeft += extrapolatedLeft
+	}
+	return sumLeft
+}
+
+func extrapolateLine(line []int) (int, int) {
 	allZeros := false
 	lines := [][]int{line}
 	currentLine := line
@@ -31,13 +44,19 @@ func extrapolateLine(line []int) int {
 			return value == 0
 		})
 	}
-	latestValue := 0
+	extrapolateRightDelta := 0
+	extrapolateLeftDelta := 0
 	for i := len(lines) - 2; i >= 0; i-- {
-		latestValue = lines[i][len(lines[i])-1]
+		extrapolateRightDelta = lines[i][len(lines[i])-1]
+		extrapolateLeftDelta = lines[i][0]
 		if i > 0 {
 			nextLine := lines[i-1]
-			lines[i-1] = append(nextLine, latestValue+nextLine[len(nextLine)-1])
+			extrapolateRight := extrapolateRightDelta + nextLine[len(nextLine)-1]
+			extrapolateLeft := nextLine[0] - extrapolateLeftDelta
+
+			addedRight := append(nextLine, extrapolateRight)
+			lines[i-1] = append([]int{extrapolateLeft}, addedRight...)
 		}
 	}
-	return latestValue
+	return extrapolateLeftDelta, extrapolateRightDelta
 }
