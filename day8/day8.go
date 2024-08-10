@@ -58,29 +58,26 @@ func SolvePart2(file string) int {
 		}
 	}
 
-	results := []int{}
+	result := 1
 
 	for _, key := range startingKeys {
 		counter := 0
 		for !strings.HasSuffix(key, "Z") {
-			directionIndex := counter % len(directions)
-			direction := string(directions[directionIndex])
 			lr := directionsMap[key]
-			if direction == "L" {
+			if string(directions[counter%len(directions)]) == "L" {
 				key = lr.left
 			} else {
 				key = lr.right
 			}
 			counter++
 		}
-		results = append(results, counter)
+		result = leastCommonMultiplier(result, counter)
 	}
-
-	return lcmArray(results)
+	return result
 }
 
 // COPILOT CHEATS:
-func gcd(a, b int) int {
+func greatestCommonDivisor(a, b int) int {
 	for b != 0 {
 		t := b
 		b = a % b
@@ -89,14 +86,6 @@ func gcd(a, b int) int {
 	return a
 }
 
-func lcm(a, b int) int {
-	return (a * b) / gcd(a, b)
-}
-
-func lcmArray(arr []int) int {
-	result := arr[0]
-	for _, num := range arr[1:] {
-		result = lcm(result, num)
-	}
-	return result
+func leastCommonMultiplier(a, b int) int {
+	return (a * b) / greatestCommonDivisor(a, b)
 }
