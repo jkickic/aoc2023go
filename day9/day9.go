@@ -30,20 +30,11 @@ func SolvePart2(file string) int {
 }
 
 func extrapolateLine(line []int) (int, int) {
-	allZeros := false
-	lines := [][]int{line}
-	currentLine := line
-	for !allZeros {
-		var nextLine []int
-		for index, value := range currentLine[1:] {
-			nextLine = append(nextLine, value-currentLine[index])
-		}
-		lines = append(lines, nextLine)
-		currentLine = nextLine
-		allZeros = utils.AllMatch(nextLine, func(value int) bool {
-			return value == 0
-		})
-	}
+	lines := generateLines(line)
+	return calculateDeltas(lines)
+}
+
+func calculateDeltas(lines [][]int) (int, int) {
 	extrapolateRightDelta := 0
 	extrapolateLeftDelta := 0
 	for i := len(lines) - 2; i >= 0; i-- {
@@ -59,4 +50,22 @@ func extrapolateLine(line []int) (int, int) {
 		}
 	}
 	return extrapolateLeftDelta, extrapolateRightDelta
+}
+
+func generateLines(line []int) [][]int {
+	allZeros := false
+	lines := [][]int{line}
+	currentLine := line
+	for !allZeros {
+		var nextLine []int
+		for index, value := range currentLine[1:] {
+			nextLine = append(nextLine, value-currentLine[index])
+		}
+		lines = append(lines, nextLine)
+		currentLine = nextLine
+		allZeros = utils.AllMatch(nextLine, func(value int) bool {
+			return value == 0
+		})
+	}
+	return lines
 }
